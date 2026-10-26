@@ -1,0 +1,16 @@
+{
+  "name": "Eagles U7",
+  "short_name": "Eagles U7",
+  "description": "Tréninky a zápasy baseballu U7: plánování tréninků, zápis zápasů a živé skóre pro rodiče.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F2F5F0",
+  "theme_color": "#1F5A36",
+  "lang": "cs",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

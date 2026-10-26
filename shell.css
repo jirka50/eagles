@@ -1,0 +1,60 @@
+/* Eagles U7 · společný rám: horní lišta, přepínač Trénink | Zápas, přihlášení */
+:root{
+  --bar:#1F5A36;--bar-ink:#fff;--bar-soft:rgba(255,255,255,.16);--bar-on:#fff;--bar-on-ink:#1F5A36;
+  --bg:#F2F5F0;--card:#fff;--ink:#14202c;--muted:#56636f;--line:#d5ddd3;--accent:#1F5A36;--warn:#7a5200;--warn-bg:#fff2c8;
+  --f-disp:'Barlow Condensed',system-ui,sans-serif;--f-body:'Atkinson Hyperlegible',system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{--bg:#10171a;--card:#182226;--ink:#e8eee9;--muted:#9aa8a2;--line:#2c3a35;--accent:#7fc79a;--warn:#ffd77a;--warn-bg:#3a2f12;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 var(--f-body);display:flex;flex-direction:column;overflow:hidden}
+[hidden]{display:none!important}
+
+/* lišta */
+.bar{flex:0 0 auto;display:flex;align-items:center;gap:10px;background:var(--bar);color:var(--bar-ink);
+  padding:calc(6px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) 6px calc(12px + env(safe-area-inset-left,0px));position:relative;z-index:5}
+.brand{display:flex;align-items:center;gap:7px;font:700 20px/1 var(--f-disp);letter-spacing:.02em;white-space:nowrap;min-width:0}
+.brand img{width:28px;height:28px;border-radius:6px;background:#fff;object-fit:contain}
+.seg{display:flex;background:var(--bar-soft);border-radius:999px;padding:3px;gap:2px;margin:0 auto}
+.seg button{border:0;background:none;color:var(--bar-ink);font:700 17px/1 var(--f-disp);letter-spacing:.03em;padding:8px 16px;border-radius:999px;cursor:pointer;min-height:36px}
+.seg button.on{background:var(--bar-on);color:var(--bar-on-ink)}
+.seg button:focus-visible,.acct:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.seg .one{font:700 17px/1 var(--f-disp);letter-spacing:.03em;padding:8px 14px}
+.acct{display:flex;align-items:center;gap:6px;border:0;background:var(--bar-soft);color:var(--bar-ink);border-radius:999px;padding:6px 12px;font:600 15px/1 var(--f-body);cursor:pointer;min-height:36px;max-width:40vw}
+.acct .who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct .dots{font-size:18px;line-height:1}
+.pop{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));top:calc(100% + 4px);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;
+  padding:12px;width:min(300px,calc(100vw - 24px));box-shadow:0 8px 28px rgba(0,0,0,.22);display:grid;gap:8px}
+.pop p{margin:0}.pw{font-weight:700}.pv{color:var(--muted);font-size:14px}
+.out{border:1px solid var(--line);background:none;color:var(--ink);border-radius:10px;padding:10px;font:700 15px var(--f-body);cursor:pointer}
+.out:hover{border-color:var(--accent)}
+
+/* hlášení pod lištou */
+.note{flex:0 0 auto;background:var(--warn-bg);color:var(--warn);padding:8px 16px;font-weight:700;font-size:15px;cursor:pointer}
+
+/* moduly */
+.frames{flex:1 1 auto;position:relative;min-height:0}
+.frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:var(--bg)}
+
+/* přihlášení */
+.login{flex:1 1 auto;overflow:auto;padding:calc(28px + env(safe-area-inset-top,0px)) 16px 28px;display:grid;align-content:start;justify-items:center;gap:14px}
+.lcard{width:min(420px,100%);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 20px;display:grid;gap:10px}
+.llogo{width:88px;height:88px;justify-self:center;border-radius:18px;background:#fff;object-fit:contain}
+.lcard h1{margin:0;text-align:center;font:700 34px/1 var(--f-disp);letter-spacing:.02em;color:var(--accent)}
+.lsub{margin:-4px 0 6px;text-align:center;color:var(--muted)}
+.lcard label{font-weight:700;font-size:15px}
+#code{width:100%;border:2px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);color:var(--ink);font:700 24px/1.2 var(--f-disp);letter-spacing:.12em;text-transform:uppercase}
+#code:focus{outline:none;border-color:var(--accent)}
+.go{border:0;border-radius:10px;padding:13px;background:var(--bar);color:#fff;font:700 20px/1 var(--f-disp);letter-spacing:.04em;cursor:pointer;min-height:48px}
+.go:disabled{opacity:.6}
+.lmsg{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-weight:700}
+.lhelp{margin:4px 0 0;color:var(--muted);font-size:14px}
+.lpar{margin:0;color:var(--muted);font-size:14px;text-align:center;max-width:420px}
+
+@media (max-width:520px){
+  .brand span{display:none}
+  .seg button{padding:8px 13px;font-size:16px}
+  .acct{padding:6px 10px}.acct .who{max-width:22vw}
+}
+@media (max-width:360px){.acct .who{display:none}}

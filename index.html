@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Eagles U7</title>
+<meta name="description" content="Tréninky a zápasy baseballu U7 v jedné aplikaci: plánování tréninků, zápis zápasů a živé skóre pro rodiče.">
+<meta name="theme-color" content="#1F5A36">
+<script>/* staré odkazy pro rodiče: ?tym=<id> → živé skóre, ?rodice=<id> → tréninky */
+(function(){try{var q=new URLSearchParams(location.search),t=q.get('tym'),r=q.get('rodice');
+if(t)location.replace('zapas/?tym='+encodeURIComponent(t));else if(r)location.replace('trenink/?rodice='+encodeURIComponent(r))}catch(e){}})();</script>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="shell.css?v=2.0">
+</head>
+<body>
+<header class="bar" id="bar" hidden>
+  <div class="brand"><img src="logo.png" alt="" width="28" height="28"><span>Eagles U7</span></div>
+  <nav class="seg" id="seg" aria-label="Část aplikace"></nav>
+  <button class="acct" id="acct" aria-haspopup="true" aria-expanded="false" aria-label="Účet"><span class="who" id="who"></span><span class="dots" aria-hidden="true">⋯</span></button>
+  <div class="pop" id="pop" hidden>
+    <p class="pw" id="pwho"></p>
+    <p class="pv" id="pver"></p>
+    <button class="out" id="logout">Odhlásit z celé aplikace</button>
+  </div>
+</header>
+<div class="note" id="note" role="status" hidden></div>
+<main class="frames" id="frames" hidden></main>
+<section class="login" id="login" hidden>
+  <div class="lcard">
+    <img src="logo.png" alt="" class="llogo" width="88" height="88">
+    <h1>Eagles U7</h1>
+    <p class="lsub">Tréninky a zápasy v jedné aplikaci</p>
+    <label for="code">Tvůj kód</label>
+    <input type="text" id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="např. K4PX-7QMR">
+    <button class="go" id="go">Přihlásit</button>
+    <div class="lmsg" id="lmsg" role="alert" hidden></div>
+    <p class="lhelp">Platí kód správce, osobní kód trenéra i kód zapisovatele. Podle kódu uvidíš Trénink, Zápas nebo obojí.</p>
+  </div>
+  <p class="lpar">Jsi rodič? Skóre i tréninky sleduješ na odkazu, který ti pošle trenér.</p>
+</section>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="shell.js?v=2.0"></script>
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dugout · Baseball Scorekeeper</title>
+<link rel="icon" href="favicon-32x32.png">
+<!-- Stránka pro tablet v dugoutu. Záměrně bez moderního JS i CSS, aby běžela i na Androidu 4.1 (Chrome 71, Firefox 68).
+     Bez přihlášení: jen čte public/<tým>/dugout přes REST, data tam posílá aplikace zapisovatele. -->
+<style>
+body{margin:0;background:#f4f6f2;color:#14202c;font:bold 18px/1.3 Arial,Helvetica,sans-serif}
+button,input{font-weight:bold}
+.top{position:relative;background:#173a2a;color:#fff;padding:4px 14px;text-align:center}
+.top table{width:100%;border:0;background:none;table-layout:auto}
+.top td{border:0;padding:0;color:#fff;font-weight:bold;vertical-align:middle;overflow:hidden;word-wrap:break-word}
+.tnm{position:absolute;top:50%;-webkit-transform:translateY(-50%);transform:translateY(-50%);overflow:hidden;white-space:nowrap;font-weight:bold;color:#fff}.tnm.l{text-align:right}.tnm.r{text-align:left}
+.tnm span{display:inline-block;font-size:40px;line-height:.95;white-space:nowrap}
+.top td.ls{width:1px;padding-right:12px;vertical-align:middle}.top td.mid{width:auto}
+table.lsc{border-collapse:collapse;table-layout:auto;width:auto}
+.lsc td,.lsc th{border:1px solid #2f5a44;padding:1px 5px;font-size:18px;color:#fff;text-align:center;min-width:16px}
+.lsc th{color:#b9d4c4;font-size:16px;border-top:0}.lsc td.nm{text-align:left;white-space:nowrap;overflow:hidden;color:#b9d4c4}
+.lsc td.nm.us{color:#fff}.lsc td.cur{background:#ffd54a;color:#14202c}.lsc td.tot{color:#ffd54a;font-size:22px}
+.tsc{position:absolute;left:50%;top:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);font-size:133px;line-height:.88;font-weight:bold;white-space:nowrap;color:#ffd54a;letter-spacing:-2px}
+.top td.st{width:180px;font-size:30px;line-height:1.35;text-align:right;border-left:2px solid #2f5a44;padding-left:10px;white-space:nowrap}
+.st span{display:block}.st .big{font-size:35px;color:#ffd54a;text-transform:uppercase}
+.dot{display:inline-block;width:27px;height:27px;border-radius:14px;border:3px solid #fff;margin-left:6px;vertical-align:-4px;box-sizing:border-box}
+.dot.on{background:#ff6b5a;border-color:#ff6b5a}
+.wrap{overflow:hidden;padding:8px 10px 8px 20px}
+.col{float:left;width:44%}.col.r{float:right;width:55%}
+#luw{overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid #cdd8cb;background:#fff}
+#luw table.lu{border:0}
+h2{margin:0 0 6px;font-size:18px;text-transform:uppercase;color:#4a5a52;letter-spacing:1px}
+table.lu{width:100%;border-collapse:collapse;background:#fff;border:1px solid #cdd8cb;table-layout:fixed}
+.lu tr{font-size:24px}
+.lu td{padding:0 8px;line-height:1;height:38px;border-bottom:1px solid #e3e9e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lu td.n{width:1.6em;padding:0 4px 0 6px;text-overflow:clip;overflow:visible;color:#6b7a73;text-align:right}
+.lu td.s{width:4.6em;font-size:.62em;text-align:right;color:#4a5a52;padding-left:2px}
+.lu tr.now td{background:#2c6a43;color:#fff;font-weight:bold}
+.lu tr.now .tag{background:#fff;color:#2c6a43}
+.lu tr.next td{background:#ffe88a}
+.lu tr.prp td{background:#fff7d6}
+.tag{display:inline-block;font-size:.75em;line-height:1.2;background:#14202c;color:#fff;border-radius:4px;padding:0 .3em;margin-left:.6em;vertical-align:middle}
+#fw{position:relative;margin:0 auto;overflow:hidden;width:400px;height:336px;background:#fff;border:1px solid #cdd8cb;box-sizing:border-box}
+.fh{text-align:center;font-size:20px;margin:0;padding:6px 4px 0;color:#14202c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}body.dark .fh{color:#eef3ef}
+.ftl{position:absolute;left:8px;bottom:5px;line-height:1.25;font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#4a5a52;z-index:2}
+.fb{position:absolute;bottom:4px;z-index:3}.fb.l{left:4px}.fb.r{right:4px}.fb button{float:none!important;margin:0!important}
+.upd{position:absolute;right:8px;bottom:42px;font-size:12px;color:#6b7a73;z-index:2}
+.field{position:relative;width:398px;height:334px;-webkit-transform-origin:0 0;transform-origin:0 0}
+.field svg{position:absolute;left:0;top:0}
+.p{position:absolute;width:120px;margin-left:-60px;text-align:center;font-size:17px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p b{display:block;font-size:14px;color:#fff;background:#2c6a43;border-radius:3px;margin:0 auto 2px;width:38px}
+.empty{background:#fff;border:1px solid #cdd8cb;padding:16px;color:#4a5a52}
+.box{max-width:420px;margin:40px auto;background:#fff;border:1px solid #cdd8cb;padding:20px}
+.foot{padding:6px 0 0;font-size:16px;line-height:30px;color:#4a5a52;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#fs,#voice{float:right;font-size:15px;padding:5px 10px;margin-left:8px;background:#173a2a;color:#fff;border:0;border-radius:5px}
+.stale{background:#c0392b;color:#fff;text-align:center;padding:4px;font-size:16px}
+.prep{background:#fff7d6;border:3px solid #c9a227;padding:2px 12px;margin-bottom:8px;font-size:28px;line-height:1.1;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prep .tv{float:right;font-size:36px;line-height:1.1;margin-left:10px}.prep.warn{background:#ffe2b8;border-color:#e67e22;color:#a14d00}.prep.warn small{color:#a14d00}body.dark .prep.warn{background:#4a3010;border-color:#e67e22;color:#ffb05a}body.dark .prep.late{background:#4a1a14;border-color:#e0574a;color:#ff8a7a}body.dark .prep.off{border-color:#2b3a3d;color:#b5c4bd}
+.prep.late{background:#ffe0dc;border-color:#c0392b;color:#a32a1d}.prep.off{background:#fff;border-color:#cdd8cb;color:#4a5a52}
+.prep small{display:inline;font-size:18px;line-height:40px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;color:#4a5a52}
+#voice.on{background:#c97a00}
+@media (max-width:860px){.fh{font-size:15px}.wrap{padding-left:16px}.fb button{font-size:13px;padding:4px 7px}.prep{padding:2px 8px}.prep .tv{font-size:28px}.prep small{font-size:14px;line-height:31px}.tsc{font-size:106px}.lsc td,.lsc th{font-size:15px;padding:0 4px}.lsc td.tot{font-size:17px}.top td.st{width:160px;font-size:23px}.st .big{font-size:26px}.dot{width:22px;height:22px}}
+@media (max-width:700px){.top td.ls{display:none}.top td.st{width:110px}.col,.col.r{float:none;width:auto;margin-bottom:12px}.tsc{font-size:64px}.top td.st{width:120px;font-size:17px}.st .big{font-size:19px}.lu tr{font-size:20px}}
+/* tmavé schéma (přepínač dole vpravo) */
+body.dark{background:#0f1517;color:#eef3ef}
+body.dark #luw{background:#172024;border-color:#2b3a3d}
+body.dark .lu td{border-bottom-color:#26343a;color:#eef3ef}
+body.dark .lu td.n{color:#8fa39a}
+body.dark .lu td.s{color:#b5c4bd}
+body.dark .lu tr.next td{background:#d9b21f;color:#14202c}
+body.dark .lu tr.next td.n,body.dark .lu tr.next td.s{color:#3a3410}
+body.dark .lu tr.prp td{background:#4d4418;color:#fff3c4}
+body.dark .lu tr.prp td.n,body.dark .lu tr.prp td.s{color:#e3d48f}
+body.dark .lu tr.prp .tag{background:#ffd54a;color:#14202c}
+body.dark .lu tr.next .tag{background:#14202c;color:#ffd54a}
+body.dark .lu tr.now td{background:#2f8a52}
+body.dark .prep{background:#172024;border-color:#d9b21f;color:#ffd54a}
+body.dark .prep small{color:#b5c4bd}
+body.dark #fw{background:#172024;border-color:#2b3a3d}
+body.dark .field svg path{fill:#1f3b2b}
+body.dark .field svg polygon{fill:#6b5233;stroke:#a5814f}
+body.dark .field svg rect{fill:#eef3ef;stroke:#8fa39a}
+body.dark .p{color:#eef3ef}
+body.dark .ftl{color:#b5c4bd}
+body.dark .upd{color:#8fa39a}
+body.dark .foot{color:#b5c4bd}
+body.dark #fs,body.dark #voice{background:#2c6a43}
+body.dark h2{color:#b5c4bd}
+body.dark .empty{background:#172024;border-color:#2b3a3d;color:#b5c4bd}
+body.dark table.lu{background:#172024}
+#theme{float:right;font-size:15px;padding:4px 10px;margin-left:8px;background:#14202c;color:#fff;border:0;border-radius:5px}body.dark #theme{background:#eef3ef;color:#14202c}
+</style>
+<style id="dyn"></style><style id="dyn2"></style></head>
+<body><div id="app"><div class="box">Načítám…</div></div>
+<script>
+var DB='https://eagles-scorekeeper-default-rtdb.europe-west1.firebasedatabase.app',POLL=1500,POLL_SLOW=30000,STREAM=false,ES=null;
+var TID='',G=null,lastOk=0,lastTs=null,loaded=false,timer=null;
+var POSL={'1':'P','2':'C','3':'1B','4':'2B','5':'3B','6':'SS','7':'LF','8':'CF','9':'RF','10':'OF'};
+/* pozice v obdélníku 400×300 (střed jmenovky, horní okraj) */
+var POSXY={'1':[200,163],'2':[200,298],'3':[340,178],'4':[268,105],'5':[60,178],'6':[132,105],'7':[80,34],'8':[200,6],'9':[320,34]};
+var HITS={'1B':1,'2B':1,'3B':1,'HR':1};
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function qs(n){var m=new RegExp('[?&]'+n+'=([^&#]*)').exec(location.search);return m?decodeURIComponent(m[1]):''}
+
+/* ---------- čtení veřejných dat public/<tým>/dugout, bez přihlášení ---------- */
+function url(){return DB+'/public/'+encodeURIComponent(TID)+'/dugout.json'}
+function stale(){return !!lastOk&&Date.now()-lastOk>(STREAM?75000:30000)}
+var shownStale=false;
+setInterval(function(){if(stale()!==shownStale)render()},5000);
+function apply(v){var ch=!loaded||(!v||!v.json)!==!G,first=lastTs==null;lastOk=Date.now();loaded=true;if(!v||!v.json){G=null;lastTs=null}else if(first||v.ts>lastTs){try{G=JSON.parse(v.json);lastTs=v.ts;ch=true;
+    /* rozdíl hodin tablet × telefon: jen z čerstvé změny (ne z první, možná staré hodnoty) */
+    if(!first){var d=Date.now()-v.ts;if(Math.abs(d)<43200000&&(SKEW===null||d<SKEW))SKEW=d}}catch(e){}}if(ch||stale()!==shownStale)render()}
+/* záložní/kontrolní čtení: bez živého spojení každé 2 s, se živým spojením jednou za 30 s */
+function tick(){clearTimeout(timer);var x=new XMLHttpRequest();
+  x.open('GET',url()+'?t='+Date.now(),true);x.timeout=15000;
+  x.onreadystatechange=function(){if(x.readyState!==4)return;
+    if(x.status===200){var v=null;try{v=JSON.parse(x.responseText)}catch(e){}apply(v)}else render();
+    timer=setTimeout(tick,STREAM?POLL_SLOW:POLL)};
+  x.send(null)}
+/* živé spojení: databáze sama pošle změnu hned, jak ji zapisovatel uloží */
+function stream(){if(!window.EventSource)return;try{ES=new EventSource(url())}catch(e){ES=null;return}
+  var on=function(ev){var m=null;try{m=JSON.parse(ev.data)}catch(e){}
+    if(m&&m.path==='/')apply(m.data);else tick()};
+  ES.addEventListener('put',on,false);ES.addEventListener('patch',function(){tick()},false);
+  ES.addEventListener('keep-alive',function(){lastOk=Date.now();if(stale()!==shownStale)render()},false);
+  ES.onopen=function(){STREAM=true};
+  ES.onerror=function(){if(ES.readyState===2){STREAM=false;ES=null;tick();setTimeout(stream,15000)}}}
+
+/* ---------- pomocné ---------- */
+function anon(n){return String(n).charAt(0)==='?'}
+function noNum(n){return String(n).charAt(0)==='~'}
+function numTxt(n){return anon(n)?'P'+String(n).slice(1):noNum(n)?'—':'#'+n}
+function first(n){var x=G.names&&G.names[n],nm=x?String(x):'';return noNum(n)?(nm||'—'):anon(n)?'Hráč '+String(n).slice(1):numTxt(n)+(nm?' '+nm:'')}
+function sum(a){var t=0;for(var i=0;i<(a||[]).length;i++)t+=a[i]||0;return t}
+function dots(n){var h='';for(var i=0;i<3;i++)h+='<i class="dot'+(i<n?' on':'')+'"></i>';return h}
+function stat(n){var pa=0,h=0,r=0;(G.pas||[]).forEach(function(x){if(x[0]===n){pa++;if(HITS[x[1]])h++;if(x[2])r++}});return pa?h+'/'+pa+(r?' · '+r+' R':''):''}
+function lineScore(){var o=G.ours,n=Math.max(5,G.inning||1),R=G.runs||[[],[]],h='<table class="lsc"><tr><th></th>',i,t;
+  for(i=1;i<=n;i++)h+='<th>'+i+'</th>';h+='<th>R</th></tr>';
+  for(t=0;t<2;t++){h+='<tr><td class="nm'+(t===o?' us':'')+'">'+(t===0?'Hosté':'Domácí')+'</td>';
+    for(i=1;i<=n;i++){var played=i<G.inning||(i===G.inning&&(t===0||!G.top))||G.final,cur=!G.final&&i===G.inning&&(G.top?0:1)===t;
+      h+='<td'+(cur?' class="cur"':'')+'>'+(played||cur?((R[t]||[])[i-1]||0):'')+'</td>'}
+    h+='<td class="tot">'+sum(R[t])+'</td></tr>'}
+  return h+'</table>'}
+/* čas zápasu: odhad rozdílu hodin tabletu a telefonu zapisovatele (nejmenší pozorovaný rozdíl) */
+var SKEW=null;
+function mmss(ms){var s=Math.max(0,Math.floor(ms/1000));return Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60}
+function timerInfo(){var c=G&&G.clock,L=(G&&G.tl||0)*60000;if(!c)return{cls:'off',lb:'Čas zápasu zatím neběží'+(L?' · limit '+G.tl+' min':''),tv:'–:––'};
+  var now=(c.e||(Date.now()-(SKEW||0))),el=now-c.s;
+  if(G.final||c.e)return{cls:'off',lb:'Zápas skončil',tv:'hrálo se '+mmss(el)};
+  if(!L)return{cls:'',lb:'Hraje se',tv:mmss(el)};
+  if(el<L)return{cls:L-el<=300000?'warn':'',lb:L-el<=300000?'Pozor, do konce zbývá':'Do konce zápasu zbývá',tv:mmss(L-el),rem:L-el};
+  return{cls:'late',lb:'Čas vypršel, přetahuje se',tv:'+'+mmss(el-L),rem:L-el}}
+function timerBox(){var t=timerInfo();return '<div class="prep '+t.cls+'" id="tmr"><span class="tv">'+t.tv+'</span><small>'+t.lb+'</small></div>'}
+/* hlášení času: 5 minut před koncem a při vypršení limitu */
+var lastRem=null,lastClk=null;
+function timeSay(t){var key=G&&G.clock?G.clock.s:null;if(key!==lastClk){lastClk=key;lastRem=null}
+  if(t.rem==null||G.final){lastRem=null;return}
+  if(lastRem!=null&&VOICE){if(lastRem>300000&&t.rem<=300000&&t.rem>0)say('Pozor, do konce zápasu zbývá pět minut.');else if(lastRem>0&&t.rem<=0)say('Čas zápasu vypršel.')}
+  lastRem=t.rem}
+function timerTick(){var u=document.getElementById('upd');if(u&&lastOk)u.innerHTML='Aktualizováno '+hm(lastOk);var e=document.getElementById('tmr');if(!e||!G)return;var t=timerInfo();timeSay(t);e.className='prep '+t.cls;e.innerHTML='<span class="tv">'+t.tv+'</span><small>'+t.lb+'</small>'}
+setInterval(timerTick,1000);
+function hm(t){var d=new Date(t);return(d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes()}
+
+/* ---------- vykreslení ---------- */
+function msg(t){return '<div class="box">'+t+'</div>'}
+function view(){
+  if(!TID)return msg('V adrese chybí tým. Otevři odkaz zkopírovaný v aplikaci (Živé skóre → Tablet do dugoutu).');
+  if(!loaded)return msg(lastOk?'Načítám…':'Připojuji se…');
+  if(!G||G.example)return msg('Zápas zatím není rozehraný. Stránka se obnoví sama.')+foot();
+  var o=G.ours,batting=(G.top?0:1)===o,fin=!!G.final,us=G.us||'Náš tým',them=G.them||'Soupeř';
+  var h='';
+  if(stale())h+='<div class="stale">Bez spojení od '+hm(lastOk)+'. Údaje nemusí být aktuální.</div>';
+  var sa=sum(G.runs&&G.runs[o]),sb=sum(G.runs&&G.runs[1-o]);
+  h+='<div class="top"><table><tr><td class="ls">'+lineScore()+'</td><td class="mid">&nbsp;</td><td class="st">'+(fin?'<span class="big">Konec</span><span>zápasu</span>':'<span>'+G.inning+'. směna '+(G.top?'▲':'▼')+'</span><span class="big">'+(batting?'pálíme':'bráníme')+'</span><span>Auty'+dots(G.outs||0)+'</span>')+'</td></tr></table>'+
+    '<div class="tsc" id="tsc">'+sa+' : '+sb+'</div><div class="tnm l"><span>'+esc(us)+'</span></div><div class="tnm r"><span>'+esc(them)+'</span></div></div>';
+  /* pálkařské pořadí */
+  var L=G.lineup||[],cur=G.bat||0;
+  h+='<div class="wrap"><div class="col">'+timerBox();
+  if(!L.length)h+='<div class="empty">Sestava není nastavená.</div>';
+  else{h+='<div id="luw"><table class="lu">';L.forEach(function(n,i){var k=fin?-1:(i-cur+L.length)%L.length,pk=batting?2:1,cls=k===0?'now':k===pk?'prp':k===1?'next':'',
+      tag=k===0?(batting?'PÁLÍ':'NA ŘADĚ'):k===1&&batting?'NA ŘADĚ':k===pk?'PŘIPRAV SE':'';
+    h+='<tr class="'+cls+'"><td class="n">'+(i+1)+'</td><td class="nm">'+esc(first(n))+(tag?'<span class="tag">'+tag+'</span>':'')+'</td><td class="s">'+esc(stat(n))+'</td></tr>'});
+    h+='</table></div>'}
+  /* obrana: směna, kterou bráníme teď nebo jako další */
+  var fi=G.defInn,D=G.def,bench=[],extra=[],at={};
+  if(D)for(var n in D){if(D[n]==='10')extra.push(n);else if(POSXY[D[n]])at[D[n]]=n;else bench.push(first(n))}
+  var ttl='Obrana · '+fi+'. směna'+(batting&&!fin?' (další)':'');
+  h+='</div><div class="col r">';
+  if(!D)h+='<h2>'+ttl+'</h2><div class="empty">Obrana pro tuto směnu není nastavená.</div>'+foot('');
+  else{h+='<div id="fw"><h2 class="fh" id="fhd">Kdo kde hraje · '+fi+'. směna'+(batting&&!fin?' (další)':'')+'</h2><div class="fb l">'+btnFs()+'</div><div class="fb r">'+btnVoice()+'</div>'+'<div class="upd" id="upd">'+(lastOk?'Aktualizováno '+hm(lastOk):'')+'</div>'+'<div class="field" id="fld"><svg width="400" height="336" viewBox="0 0 400 336"><path d="M200 300 L40 150 A226 226 0 0 1 360 150 Z" fill="#d9ead3"/>'+
+      '<polygon points="200,290 290,205 200,120 110,205" fill="#e8cfa4" stroke="#b08a55" stroke-width="2"/>'+
+      '<rect x="194" y="284" width="12" height="12" fill="#fff" stroke="#888"/><rect x="284" y="199" width="12" height="12" fill="#fff" stroke="#888"/>'+
+      '<rect x="194" y="114" width="12" height="12" fill="#fff" stroke="#888"/><rect x="104" y="199" width="12" height="12" fill="#fff" stroke="#888"/></svg>';
+    for(var p in POSXY)if(at[p]&&+p<7)h+='<div class="p" style="left:'+POSXY[p][0]+'px;top:'+POSXY[p][1]+'px"><b>'+POSL[p]+'</b>'+esc(first(at[p]))+'</div>';
+    /* zadáci (i další zadáci) rovnoměrně po oblouku: levý … střední … pravý */
+    var mid=extra.map(function(n){return['10',n]}),of=[];if(at['8'])mid.splice(Math.floor(mid.length/2),0,['8',at['8']]);
+    if(at['7'])of.push(['7',at['7']]);of=of.concat(mid);if(at['9'])of.push(['9',at['9']]);
+    var k=of.length,st=k>=5;of.forEach(function(q,i){var x=k===1?200:66+i*268/(k-1),y=Math.round(6+34*Math.pow((x-200)/134,2))+(st&&i%2?40:0);
+      h+='<div class="p" style="left:'+Math.round(x)+'px;top:'+y+'px"><b>'+POSL[q[0]]+'</b>'+esc(first(q[1]))+'</div>'});
+    h+='</div></div>'+foot('Lavička: '+esc(bench.length?bench.join(', '):'—'),true)}
+  h+='</div></div>';return h}
+function btnVoice(){return voiceCan()?'<button id="voice" type="button" class="'+(VOICE?'on':'')+'">'+(VOICE?'Hlášení: zap':'Hlásit nahlas')+'</button>':''}
+function btnFs(){return fsCan()&&!fsEl()?'<button id="fs" type="button">Celá obrazovka</button>':''}
+function foot(txt,nob){return '<div class="foot" id="sum"><button id="theme" type="button">'+(DARK?'Světlé':'Tmavé')+'</button>'+(nob?'':btnVoice()+btnFs())+(txt!=null?txt:lastOk?'Aktualizováno '+hm(lastOk):'')+'</div>'}
+var lastCur=null;
+/* kdo se má připravit: hráč za tím, kdo je na řadě (pálíme: pálkař+2, bráníme: první na řadě+1) */
+function prepNum(){if(!G||G.final||G.example)return null;var L=G.lineup||[];if(!L.length)return null;var batting=(G.top?0:1)===G.ours;
+  return L[((G.bat||0)+(batting?2:1))%L.length]}
+/* hlášení nahlas (čeština, pokud ji tablet umí) */
+var VOICE=false,lastSaid=null;try{VOICE=localStorage.getItem('sk-dug-voice')==='1'}catch(e){}
+function voiceCan(){return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance)}
+function say(t){if(!voiceCan())return;try{var u=new SpeechSynthesisUtterance(t);u.lang='cs-CZ';u.rate=0.9;var vs=speechSynthesis.getVoices()||[];
+  for(var i=0;i<vs.length;i++)if(/^cs/i.test(vs[i].lang)){u.voice=vs[i];break}speechSynthesis.speak(u)}catch(e){}}
+function spoken(n){var x=G.names&&G.names[n],nm=x?String(x):'';return (!anon(n)&&!noNum(n)?'číslo '+n+' ':'')+(nm||'hráč')}
+function sayText(n){return 'Připraví se '+spoken(n)}
+/* hlášení: změna poloviny (jdeme pálit / do pole), pak kdo se připraví */
+var lastBat=null;
+function announce(){if(!G||G.final||G.example)return;var L=G.lineup||[],bat=(G.top?0:1)===G.ours,key=G.inning+(G.top?'t':'b');
+  if(lastBat!==null&&key!==lastBat.k&&bat!==lastBat.b&&VOICE){
+    if(bat&&L.length){var b0=G.bat||0;say('Jdeme pálit.');say('Na pálku jde '+spoken(L[b0%L.length])+'.');
+      if(L.length>1)say('Další na řadě je '+spoken(L[(b0+1)%L.length])+'.');
+      if(L.length>2){say('Připraví se '+spoken(L[(b0+2)%L.length])+'.')}lastBat={k:key,b:bat};lastSaid=prepNum();return}
+    else if(!bat)say('Jdeme do pole')}
+  lastBat={k:key,b:bat};
+  var n=prepNum();if(!bat){lastSaid=n;return}  /* v poli se nikdo nehlásí */
+  if(n==null||n===lastSaid)return;var isFirst=lastSaid===null;lastSaid=n;if(VOICE&&!isFirst)say(sayText(n))}
+function voiceToggle(){VOICE=!VOICE;try{localStorage.setItem('sk-dug-voice',VOICE?'1':'0')}catch(e){}var n=prepNum();if(VOICE)say(G&&(G.top?0:1)!==G.ours?'Hlášení zapnuto':n!=null?sayText(n):'Hlášení zapnuto');render()}
+function render(){shownStale=stale();var w=document.getElementById('luw'),st=w?w.scrollTop:0;document.getElementById('app').innerHTML=view();fit();announce();
+  w=document.getElementById('luw');if(!w)return;w.scrollTop=st;
+  var cur=G&&!G.final?G.bat:null;if(cur!==lastCur){lastCur=cur;var r=w.getElementsByTagName('tr')[cur||0];
+    if(r&&(r.offsetTop<w.scrollTop||r.offsetTop+r.offsetHeight>w.scrollTop+w.clientHeight))w.scrollTop=Math.max(0,r.offsetTop-r.offsetHeight)}}
+/* pořadí: velikost řádků tak, aby se vešlo 11 pálkařů, zbytek se posouvá */
+function fitField(){var fw=document.getElementById('fw'),f=document.getElementById('fld');if(!fw)return;
+  var cw=fw.parentNode.clientWidth,top=fw.getBoundingClientRect().top+(window.pageYOffset||0),sm=document.getElementById('sum'),
+    fh=document.getElementById('fhd'),hh=fh?fh.offsetHeight:0,below=(sm?sm.offsetHeight:0)+12,sc=(cw-2)/400;
+  if(window.innerWidth>700)sc=Math.min(sc,(window.innerHeight-top-below-hh-2)/336);else sc=Math.min(sc,1.6);
+  sc=Math.max(0.7,Math.floor(sc*100)/100);var lf=Math.max(17,Math.round(15/sc)),ps=f.getElementsByTagName('div');for(var i=0;i<ps.length;i++)ps[i].style.fontSize=lf+'px';fw.style.width=(Math.floor(400*sc)+2)+'px';fw.style.height=(Math.floor(336*sc)+hh+2)+'px';
+  f.style.webkitTransform=f.style.transform='scale('+sc+')';
+  if(sm){sm.style.width=fw.style.width;sm.style.marginLeft=sm.style.marginRight='auto'}}
+/* názvy týmů: plná velikost; dlouhý název pomalu jezdí tam a zpět */
+function fitNames(){var ss=document.querySelectorAll('.tnm span'),css='';
+  for(var i=0;i<ss.length;i++){var sp=ss[i],td=sp.parentNode,w=td.clientWidth-2,f=window.innerWidth<=700?20:window.innerWidth<=860?35:46;
+    sp.style.fontSize=f+'px';sp.className='';td.style.textAlign='';
+    var d=sp.offsetWidth-w;if(d>0){var t=Math.round(4+d/35);sp.className='mq'+i;td.style.textAlign='left';
+      var k='{0%,20%{-webkit-transform:translateX(0);transform:translateX(0)}80%,100%{-webkit-transform:translateX(-'+d+'px);transform:translateX(-'+d+'px)}}';
+      css+='@-webkit-keyframes mq'+i+k+'@keyframes mq'+i+k+'.mq'+i+'{-webkit-animation:mq'+i+' '+t+'s linear infinite alternate;animation:mq'+i+' '+t+'s linear infinite alternate}'}}
+  var st=document.getElementById('dyn2');if(st.textContent!==css)st.textContent=css}
+/* skóre přesně doprostřed obrazovky, názvy týmů v mezerách vedle něj */
+function fitBanner(){var t=document.querySelector('.top');if(!t)return;var tb=t.getBoundingClientRect(),sc=document.getElementById('tsc').getBoundingClientRect(),
+    ls=t.querySelector('td.ls'),st=t.querySelector('td.st'),nl=t.querySelector('.tnm.l'),nr=t.querySelector('.tnm.r'),gap=24,
+    lsR=ls&&ls.offsetWidth?ls.getBoundingClientRect().right:tb.left+14,stL=st.getBoundingClientRect().left;
+  var a=lsR+8-tb.left,b=sc.left-gap-tb.left;nl.style.left=a+'px';nl.style.width=Math.max(0,b-a)+'px';nl.style.display=b-a<40?'none':'';
+  var c=sc.right+gap-tb.left,d=stL-8-tb.left;nr.style.left=c+'px';nr.style.width=Math.max(0,d-c)+'px';nr.style.display=d-c<40?'none':''}
+function fit(){fitBanner();fitNames();fitField();var d=document.getElementById('dyn'),w=document.getElementById('luw');
+  if(!w||window.innerWidth<=700){d.textContent='';if(w)w.style.height='';return}
+  var av=window.innerHeight-w.getBoundingClientRect().top-(window.pageYOffset||0)-10,rh=Math.max(30,Math.floor(av/11)),fz=Math.min(38,Math.max(17,Math.round(rh*0.8)));
+  d.textContent='.lu td{height:'+(rh-1)+'px}.lu tr{font-size:'+fz+'px}';w.style.height=Math.max(av,rh*5)+'px';
+  /* jména se musí vejít vedle štítku: případně písmo zmenšit */
+  var nm=w.getElementsByTagName('td'),over=function(){for(var i=0;i<nm.length;i++)if(nm[i].className==='nm'&&nm[i].scrollWidth>nm[i].clientWidth+1)return true;return false};
+  while(fz>16&&over()){fz--;d.textContent='.lu td{height:'+(rh-1)+'px}.lu tr{font-size:'+fz+'px}'}}
+window.onresize=function(){fit()};
+
+/* ---------- celá obrazovka (Chrome 71: webkit, Firefox 68: moz) ---------- */
+function fsEl(){return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||null}
+function fsCan(){var e=document.documentElement;return !!(e.requestFullscreen||e.webkitRequestFullscreen||e.mozRequestFullScreen)}
+function fsGo(){var e=document.documentElement;
+  if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document);return}
+  if(e.requestFullscreen)e.requestFullscreen();else if(e.webkitRequestFullscreen)e.webkitRequestFullscreen();else if(e.mozRequestFullScreen)e.mozRequestFullScreen()}
+function fsUpd(){setTimeout(fit,300);render()}
+var DARK=false;try{DARK=localStorage.getItem('sk-dug-theme')==='dark'}catch(e){}
+function applyTheme(){document.body.className=DARK?'dark':''}
+function themeToggle(){DARK=!DARK;try{localStorage.setItem('sk-dug-theme',DARK?'dark':'light')}catch(e){}applyTheme();render()}
+applyTheme();
+document.onclick=function(e){var t=e.target||e.srcElement;if(t&&t.id==='theme')themeToggle();if(t&&t.id==='fs')fsGo();if(t&&t.id==='voice')voiceToggle()};
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange'].forEach(function(ev){document.addEventListener(ev,fsUpd,false)});
+
+TID=qs('tym');render();if(TID){tick();stream()}
+</script></body></html>

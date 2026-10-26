@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trénink · Eagles U7</title>
+<meta name="description" content="Plánování tréninků baseballu pro děti do 7 let: hry, cviky, skupiny a časovač na hřiště.">
+<meta name="theme-color" content="#1F5A36">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="app.css?v=202610262121">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="hbar">
+      <h1 class="brand">Trénink<small id="sync">Připojuji…</small><small class="hver" id="hver"></small></h1>
+      <div class="hctl">
+        <select class="teamsel" id="teamSel" aria-label="Tým"></select>
+        <button class="sun" id="sunBtn" data-a="sun" aria-label="Režim na slunce" title="Režim na slunce">☀</button>
+        <nav class="menu" id="tabs" aria-label="Sekce"></nav>
+      </div>
+    </div>
+  </header>
+  <main id="view"></main>
+</div>
+<div class="sheet" id="sheet" hidden></div>
+<div class="toast" id="toast" hidden></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="app.js?v=202610262121"></script>
+<script src="embed.js?v=202610262121"></script>
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}));</script>
+</body>
+</html>
