@@ -1,7 +1,7 @@
 /* Eagles U7 · offline pro celou aplikaci (rám, Trénink i Zápas).
    Vlastní soubory síť napřed, při výpadku z mezipaměti. Firebase si spojení řeší samo.
    Při každém vydání zvýšit název mezipaměti (eg-vN), ať telefony načtou novou verzi. */
-const C='eg-v1',OWN=['./','index.html','shell.js','shell.css','manifest.json','logo.png','favicon.ico','favicon-32x32.png','apple-touch-icon.png','icon-192.png',
+const C='eg-v2',OWN=['./','index.html','shell.js','shell.css','manifest.json','logo.png','favicon.ico','favicon-32x32.png','apple-touch-icon.png','icon-192.png',
   'trenink/','trenink/index.html','trenink/app.js','trenink/app.css','trenink/embed.js','trenink/logo.png',
   'zapas/','zapas/index.html','zapas/app.js','zapas/app.css','zapas/embed.js','zapas/dugout.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(OWN)).then(()=>self.skipWaiting()))});

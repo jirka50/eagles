@@ -469,6 +469,11 @@ const A=[
  d:'„Krokodýli“ s rukavicí stojí u každé mety. Trenér uprostřed kutálí míčky ke krokodýlům, ti je „snědí“ krokodýlí tlamou a hodí zpátky. Mezitím druhé družstvo „běžců“ obíhá mety. Krokodýli dostávají bod za každý chycený míček, běžci za každé celé kolo. Po 2 minutách se družstva vymění a porovnají se body.',
  va:'Hladový krokodýl: kdo nechá míček proklouznout mezi nohama, musí si pro něj doběhnout a teprve pak hodit zpět.',
  kid:'„Krokodýl má tlamu u země – ham a míček je snězený!“'},
+{id:'g42',k:'game',n:'Raketa na metu',c:'mety',t:['odpal','hra'],e:3,min:8,kids:2,
+ gear:['Plastové pálky', 'Žíněnka', 'Mety', 'Kužely'],gn:'hraje se v hale; žíněnka hned vedle domácí mety, kužel 3 m za první metou',dev:'rychlá reakce na zvukový signál, bezpečné odložení pálky, start z pálkařského postoje, proběhnutí první mety',
+ d:'Hraje se v hale s plastovou pálkou. Děti stojí v řadě za domácí metou, první se postaví do pálkařského postoje s pálkou nahoře. Trenér u nadhazovací mety tleskne nebo zavolá „Raketa!“. Dítě naznačí švih, pálku položí na žíněnku vedle domácí mety (nikdy ji nehází) a vystartuje na první metu. Metu proběhne až ke kuželu za ní, vrátí se po vnější straně a zařadí se na konec řady. Hodená pálka znamená návrat a nový pokus. Každé dítě 4–6 startů.',
+ va:'Falešné signály: trenér občas zavolá „Ra… rajče!“ nebo tleskne jinak, kdo vystartuje, udělá raketový skok na místě. Semafor: místo zvuku zvedne zelený (běž) nebo červený kužel (stůj). Závod ve dvojicích: dvě domácí a dvě první mety vedle sebe, kdo proběhne první? Raketa proti polaři: na signál trenér hodí míček polaři na první metě, kdo tam bude dřív?',
+ kid:'„Pálka si lehne na žíněnku, raketa startuje – a první metu proletíme!“'},
 /* --- CVIKY --- */
 {id:'d01',k:'drill',n:'Držení míče',c:'hazeni',e:1,min:5,kids:1,st:1,gear:['Měkké míčky'],gn:'míček pro každé dítě',
  dev:'správný úchop míče, příprava na hod',
@@ -866,6 +871,9 @@ g40:{d:9,s:[['diamond'],['bucket',50,36],['hoop',42,58,3]],cap:[[0,'Odpal z tee 
  KP([[0,38,20]],{t:'k2'}),KP([[0,66,16]],{t:'k2'}),KP([[0,30,42]],{t:'k2'}),
  KP([[0,47,56],[.12,47,56],[.16,44,57],[.36,72,34],[.5,62,23],[.75,62,23],[.95,47,56],[1,47,56]]),{t:'swing',x:48,y:56,at:[[.02,.09]],to:[42,58,.14]},
  BALL([[.08,.24,50,55,38,20,10],[.32,.48,38,20,50,36,6]],{show:[.08,.95]})]},
+g42:{d:7,s:[['diamond'],['zone',33,54,9,4,'žíněnka'],['cone',84,26]],cap:[[0,'Tlesk! Raketa startuje'],[.15,'Pálka na žíněnku'],[.25,'Proletět první metu až ke kuželu']],a:[
+ {t:'c',p:pth([[0,50,36]])},
+ KP([[0,47,56],[.12,47,56],[.16,44,57],[.45,72,34],[.6,84,26],[.75,84,26],[.95,47,56],[1,47,56]]),{t:'swing',x:48,y:56,at:[[.02,.09]],to:[38,58,.14]}]},
 g41:{d:9,s:[['diamond']],cap:[[0,'Krokodýli „snědí“ kutálený míček'],[.5,'Běžci zatím obíhají mety']],a:[
  {t:'c',p:pth([[0,50,36]])},KP([[0,67,34]]),KP([[0,50,17]]),KP([[0,33,34]]),KP([[0,50,51]]),
  KP(around(0,.48),{t:'k2'}),KP(around(.5,.98),{t:'k2'}),
